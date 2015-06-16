@@ -5,9 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamic_reconfigure
   diagnostic_updater
   roscpp
-  sensor_msgs
   std_srvs
-  trajectory_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS thread)
@@ -26,7 +24,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES scservo_driver
-  CATKIN_DEPENDS diagnostic_updater dynamic_reconfigure roscpp sensor_msgs trajectory_msgs
+  CATKIN_DEPENDS diagnostic_updater dynamic_reconfigure roscpp
 )
 
 ###########
