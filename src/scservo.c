@@ -35,13 +35,16 @@
 /**
  * Private Definitions
  */
+#define SC_START_BYTE 0xFF
+#define SC_ENDIAN_SWAP_16(X) ((*(X) << 8) | (*(X) >> 8))
+#define SC_ENDIAN_SWAP_16_ASSIGN(X) *((uint16_t *)X) = SC_ENDIAN_SWAP_16((uint16_t *)X)
+
 struct sc_priv
 {
 	char *port;
 	enum SC_BAUD baud;
 	int fd;
 	uint8_t timeout;
-	int servos[SC_MAX_ID];
 };
 
 enum SC10_CMD
@@ -111,10 +114,6 @@ enum SC10_REG
 	SC10_CURRENT_H = 70
 };
 
-#define SC_START_BYTE 0xFF
-#define SC_ENDIAN_SWAP_16(X) (X << 8) | (X >> 8)
-#define SC_ENDIAN_SWAP_16_ASSIGN(X) X = SC_ENDIAN_SWAP_16(X)
-
 /**
  * Private Data
  */
@@ -174,10 +173,10 @@ void sc_close(const int scd)
 
 int sc_open(const char *port, const enum SC_BAUD baud, const uint8_t timeout)
 {
-	int fd = -1;
+	int fd;
 	struct termios options;
-	int ret = SC_SUCCESS;
-	int scd = -1;
+	int ret;
+	int scd;
 
 	if (port == NULL || port[0] == '\0' || baud < 0 || baud >= SC_BAUD_MAX || timeout < 1 || sc_baud_termios[baud] == B0)
 	{
@@ -278,10 +277,10 @@ sc_pre_fail:
 
 int sc_ping(const int scd, const uint8_t id)
 {
-	static const uint8_t sent_value = SC10_CMD_PING;
+	static const uint8_t msg[1] = { SC10_CMD_PING };
 
 	uint8_t recv[6];
-	int ret = SC_SUCCESS;
+	int ret;
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
 	{
@@ -294,7 +293,7 @@ int sc_ping(const int scd, const uint8_t id)
 		return ret;
 	}
 
-	ret = sc_write_msg(scd, id, &sent_value, 1);
+	ret = sc_write_msg(scd, id, msg, 1);
 	if (ret != SC_SUCCESS)
 	{
 		return ret;
@@ -324,7 +323,7 @@ int sc_ping(const int scd, const uint8_t id)
 
 int sc_read_diag(const int scd, const uint8_t id, uint8_t *voltage, uint8_t *temperature, uint8_t *error)
 {
-	int ret = SC_SUCCESS;
+	int ret;
 	uint8_t buf[4];
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
@@ -350,7 +349,7 @@ int sc_read_diag(const int scd, const uint8_t id, uint8_t *voltage, uint8_t *tem
 
 int sc_read_goal(const int scd, const uint8_t id, uint16_t *goal_speed, uint16_t *goal_position)
 {
-	int ret = SC_SUCCESS;
+	int ret;
 	uint16_t buf[2];
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
@@ -366,8 +365,8 @@ int sc_read_goal(const int scd, const uint8_t id, uint16_t *goal_speed, uint16_t
 	ret = sc_read_reg(scd, id, SC10_GOAL_POSITION_L, buf, 4);
 	if (ret == SC_SUCCESS)
 	{
-		*goal_speed = SC_ENDIAN_SWAP_16(buf[1]);
-		*goal_position = SC_ENDIAN_SWAP_16(buf[0]);
+		*goal_speed = SC_ENDIAN_SWAP_16(&buf[1]);
+		*goal_position = SC_ENDIAN_SWAP_16(&buf[0]);
 	}
 
 	return ret;
@@ -450,7 +449,7 @@ int sc_read_position(const int scd, const uint8_t id, uint16_t *position)
 
 int sc_read_settings(const int scd, const uint8_t id, struct sc_settings *settings)
 {
-	int ret = SC_SUCCESS;
+	int ret;
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
 	{
@@ -465,10 +464,10 @@ int sc_read_settings(const int scd, const uint8_t id, struct sc_settings *settin
 	ret = sc_read_reg(scd, id, SC10_MIN_ANGLE_LIMIT_L, settings, sizeof(struct sc_settings));
 	if (ret == SC_SUCCESS)
 	{
-		SC_ENDIAN_SWAP_16_ASSIGN(settings->min_angle_limit);
-		SC_ENDIAN_SWAP_16_ASSIGN(settings->max_angle_limit);
-		SC_ENDIAN_SWAP_16_ASSIGN(settings->max_torque);
-		SC_ENDIAN_SWAP_16_ASSIGN(settings->imax);
+		SC_ENDIAN_SWAP_16_ASSIGN(&settings->min_angle_limit);
+		SC_ENDIAN_SWAP_16_ASSIGN(&settings->max_angle_limit);
+		SC_ENDIAN_SWAP_16_ASSIGN(&settings->max_torque);
+		SC_ENDIAN_SWAP_16_ASSIGN(&settings->imax);
 	}
 
 	return ret;
@@ -476,7 +475,7 @@ int sc_read_settings(const int scd, const uint8_t id, struct sc_settings *settin
 
 int sc_read_speed(const int scd, const uint8_t id, uint16_t *speed)
 {
-	int ret = 0;
+	int ret;
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
 	{
@@ -499,7 +498,7 @@ int sc_read_speed(const int scd, const uint8_t id, uint16_t *speed)
 
 int sc_read_status(const int scd, const uint8_t id, struct sc_status *status)
 {
-	int ret = SC_SUCCESS;
+	int ret;
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
 	{
@@ -514,9 +513,9 @@ int sc_read_status(const int scd, const uint8_t id, struct sc_status *status)
 	ret = sc_read_reg(scd, id, SC10_PRESENT_POSITION_L, status, sizeof(struct sc_status));
 	if (ret == SC_SUCCESS)
 	{
-		SC_ENDIAN_SWAP_16_ASSIGN(status->present_position);
-		SC_ENDIAN_SWAP_16_ASSIGN(status->present_speed);
-		SC_ENDIAN_SWAP_16_ASSIGN(status->present_load);
+		SC_ENDIAN_SWAP_16_ASSIGN(&status->present_position);
+		SC_ENDIAN_SWAP_16_ASSIGN(&status->present_speed);
+		SC_ENDIAN_SWAP_16_ASSIGN(&status->present_load);
 	}
 
 	return ret;
@@ -554,7 +553,7 @@ int sc_read_torque_enable(const int scd, const uint8_t id, uint8_t *enable)
 
 int sc_read_version(const int scd, const uint8_t id, uint8_t *major, uint8_t *minor)
 {
-	int ret = 0;
+	int ret;
 	uint16_t version;
 
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
@@ -655,10 +654,10 @@ int sc_write_settings(const int scd, const uint8_t id, const struct sc_settings 
 
 	buf = *settings;
 
-	SC_ENDIAN_SWAP_16_ASSIGN(buf.min_angle_limit);
-	SC_ENDIAN_SWAP_16_ASSIGN(buf.max_angle_limit);
-	SC_ENDIAN_SWAP_16_ASSIGN(buf.max_torque);
-	SC_ENDIAN_SWAP_16_ASSIGN(buf.imax);
+	SC_ENDIAN_SWAP_16_ASSIGN(&buf.min_angle_limit);
+	SC_ENDIAN_SWAP_16_ASSIGN(&buf.max_angle_limit);
+	SC_ENDIAN_SWAP_16_ASSIGN(&buf.max_torque);
+	SC_ENDIAN_SWAP_16_ASSIGN(&buf.imax);
 
 	return sc_write_reg(scd, id, SC10_MIN_ANGLE_LIMIT_L, &buf, sizeof(struct sc_settings));
 }
@@ -758,7 +757,7 @@ static int sc_next_descriptor(void)
 
 static int sc_read_msg(const int scd, void *msg, const uint8_t max_len)
 {
-	int ret = SC_SUCCESS;
+	int ret;
 	uint8_t len;
 	uint8_t *ptr = msg;
 
@@ -827,7 +826,7 @@ static int sc_read_msg(const int scd, void *msg, const uint8_t max_len)
 static int sc_read_reg(const int scd, const uint8_t id, const uint8_t reg, void *val, const uint8_t len)
 {
 	uint8_t buf[SC_MAX_MSG] = { SC10_CMD_READ, reg, len };
-	int ret = SC_SUCCESS;
+	int ret;
 
 	ret = sc_flush(scd);
 	if (ret != SC_SUCCESS)
@@ -864,12 +863,12 @@ static inline int sc_read_reg8(const int scd, const uint8_t id, const uint8_t re
 
 static inline int sc_read_reg16(const int scd, const uint8_t id, const uint8_t reg, uint16_t *val)
 {
-	int ret = SC_SUCCESS;
+	int ret;
 
 	ret = sc_read_reg(scd, id, reg, val, 2);
 	if (ret == SC_SUCCESS)
 	{
-		SC_ENDIAN_SWAP_16_ASSIGN(*val);
+		SC_ENDIAN_SWAP_16_ASSIGN(val);
 	}
 
 	return ret;
@@ -914,7 +913,7 @@ static int sc_write_msg(const int scd, const uint8_t id, const void *msg, const 
 {
 	uint8_t buf[SC_MAX_MSG] = { SC_START_BYTE, SC_START_BYTE, id, len + 1 };
 	uint8_t real_len = len + 4;
-	int ret = SC_SUCCESS;
+	int ret;
 
 	memcpy(&buf[4], msg, len);
 
@@ -933,7 +932,7 @@ static int sc_write_msg(const int scd, const uint8_t id, const void *msg, const 
 static int sc_write_reg(const int scd, const uint8_t id, const uint8_t reg, const void *val, const uint8_t len)
 {
 	uint8_t buf[SC_MAX_MSG] = { SC10_CMD_WRITE, reg };
-	int ret = SC_SUCCESS;
+	int ret;
 
 	memcpy(&buf[2], val, len);
 
@@ -970,7 +969,7 @@ static inline int sc_write_reg8(const int scd, const uint8_t id, const uint8_t r
 
 static inline int sc_write_reg16(const int scd, const uint8_t id, const uint8_t reg, const uint16_t val)
 {
-	const uint16_t val_tmp = SC_ENDIAN_SWAP_16(val);
+	const uint16_t val_tmp = SC_ENDIAN_SWAP_16(&val);
 
 	return sc_write_reg(scd, id, reg, &val_tmp, 2);
 }

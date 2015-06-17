@@ -87,7 +87,7 @@ namespace ft_scservo_driver
 
 		if (!SCServoBus::stat())
 		{
-			SCServoBus::open();
+			SCServoBus::start();
 
 			if (!SCServoBus::stat())
 			{
@@ -129,7 +129,7 @@ namespace ft_scservo_driver
 
 		if (!SCServoBus::stat())
 		{
-			SCServoBus::open();
+			SCServoBus::start();
 
 			if (!SCServoBus::stat())
 			{
@@ -151,7 +151,7 @@ namespace ft_scservo_driver
 
 		if (!SCServoBus::stat())
 		{
-			SCServoBus::open();
+			SCServoBus::start();
 
 			if (!SCServoBus::stat())
 			{
@@ -473,7 +473,7 @@ namespace ft_scservo_driver
 		}
 		else
 		{
-			stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Servo is reporting errors");
+			stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Servo is reporting error(s)");
 		}
 	}
 
