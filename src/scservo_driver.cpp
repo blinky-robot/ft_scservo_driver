@@ -488,7 +488,7 @@ namespace ft_scservo_driver
 		ret = sc_write_torque_enable(parent->scd, id, 0);
 		if (ret != SC_SUCCESS)
 		{
-			ROS_ERROR_NAMED("Servo Communication Failure: %s", sc_strerror(ret));
+			ROS_ERROR_NAMED(this_name, "Servo Communication Failure: %s", sc_strerror(ret));
 			return false;
 		}
 
@@ -506,7 +506,7 @@ namespace ft_scservo_driver
 		ret = sc_write_torque_enable(parent->scd, id, 1);
 		if (ret != SC_SUCCESS)
 		{
-			ROS_ERROR_NAMED("Servo Communication Failure: %s", sc_strerror(ret));
+			ROS_ERROR_NAMED(this_name, "Servo Communication Failure: %s", sc_strerror(ret));
 			return false;
 		}
 
