@@ -187,7 +187,7 @@ namespace ft_scservo_driver
 
 		if (SCServoBus::stat())
 		{
-			ROS_DEBUG_NAMED(this_name, "Bringing up %lu servos", servo_list.size());
+			ROS_DEBUG_NAMED(this_name, "Bringing up %u servos", (int)servo_list.size());
 
 			for (std::vector<int>::iterator it = servo_list.begin(); it != servo_list.end(); it++)
 			{
