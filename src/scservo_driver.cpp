@@ -50,11 +50,6 @@ namespace ft_scservo_driver
 		  scd(-1),
 		  this_name("scservo_driver")
 	{
-		if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
-		{
-			ros::console::notifyLoggerLevelsChanged();
-		}
-
 		nh_priv.param("baud", baud, SCServoBus::default_baud);
 		nh_priv.param("port", port, SCServoBus::default_port);
 		nh_priv.param("servos", servo_list, servo_list);
