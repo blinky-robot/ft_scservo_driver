@@ -909,6 +909,21 @@ const char * sc_strerror(const int error)
 	}
 }
 
+const char * sc_strfault(const enum SC_FAULT fault)
+{
+	switch(fault)
+	{
+	case SC_FAULT_NONE:
+		return "No fault";
+	case SC_FAULT_VOLTAGE:
+		return "Input voltage fault";
+	case SC_FAULT_TEMPERATURE:
+		return "Servo temperature fault";
+	default:
+		return "Unknown fault";
+	}
+}
+
 static int sc_write_msg(const int scd, const uint8_t id, const void *msg, const uint8_t len)
 {
 	uint8_t buf[SC_MAX_MSG] = { SC_START_BYTE, SC_START_BYTE, id, len + 1 };
@@ -954,12 +969,12 @@ static int sc_write_reg(const int scd, const uint8_t id, const uint8_t reg, cons
 		return ret;
 	}
 
-	if (buf[0] != 0xFF || buf[1] != 0xFF || buf[3] != 2 || buf[4] != 0)
+	if (buf[0] != 0xFF || buf[1] != 0xFF || buf[3] != 2)
 	{
 		return SC_ERROR_INVALID_RESPONSE;
 	}
 
-	return SC_SUCCESS;
+	return buf[4];
 }
 
 static inline int sc_write_reg8(const int scd, const uint8_t id, const uint8_t reg, const uint8_t val)

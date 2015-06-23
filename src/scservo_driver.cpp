@@ -343,7 +343,7 @@ namespace ft_scservo_driver
 		rad_per_tick = config.rad_per_tick;
 
 		ret = sc_write_settings(parent->scd, id, &last_settings);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			ROS_ERROR_NAMED(this_name, "Failed to update servo settings: %s", sc_strerror(ret));
 		}
@@ -355,7 +355,7 @@ namespace ft_scservo_driver
 		int ret;
 
 		ret = sc_read_settings(parent->scd, id, &last_settings);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
 		}
@@ -401,7 +401,7 @@ namespace ft_scservo_driver
 		struct sc_status status;
 
 		ret = sc_read_status(parent->scd, id, &status);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
 		}
@@ -446,20 +446,20 @@ namespace ft_scservo_driver
 		ROS_DEBUG_NAMED(this_name, "Getting diagnostics for servo at id '%hhu'", id);
 
 		ret = sc_read_diag(parent->scd, id, &voltage, &temperature, &error);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
 		}
 
 		ret = sc_read_torque_enable(parent->scd, id, &torque_enable);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
 		}
 
-		stat.add("Error Code", (int)error);
+		stat.addf("Fault Code", "%s (%d)", sc_strfault((enum SC_FAULT)error), (int)error);
 		stat.add("Temperature", (int)temperature);
-		stat.add("Torque Enabled", (int)torque_enable);
+		stat.add("Torque Enabled", (bool)torque_enable);
 		stat.add("Voltage", voltage / 10.0f);
 
 		if (error == 0)
@@ -481,7 +481,7 @@ namespace ft_scservo_driver
 		ROS_DEBUG_NAMED(this_name, "Relaxing servo at id '%hhu'", id);
 
 		ret = sc_write_torque_enable(parent->scd, id, 0);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			ROS_ERROR_NAMED(this_name, "Servo Communication Failure: %s", sc_strerror(ret));
 			return false;
@@ -499,7 +499,7 @@ namespace ft_scservo_driver
 		ROS_DEBUG_NAMED(this_name, "Tensing servo at id '%hhu'", id);
 
 		ret = sc_write_torque_enable(parent->scd, id, 1);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			ROS_ERROR_NAMED(this_name, "Servo Communication Failure: %s", sc_strerror(ret));
 			return false;
@@ -513,7 +513,7 @@ namespace ft_scservo_driver
 		int ret;
 
 		ret = sc_write_torque_enable(parent->scd, id, enable ? 1 : 0);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
 		}
@@ -534,7 +534,7 @@ namespace ft_scservo_driver
 		pos = (position + 0.5);
 
 		ret = sc_write_goal(parent->scd, id, 25, pos);
-		if (ret != SC_SUCCESS)
+		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
 		}

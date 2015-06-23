@@ -74,6 +74,13 @@ enum SC_ERROR
 	SC_ERROR_NOT_CONNECTED = -102,
 };
 
+enum SC_FAULT
+{
+	SC_FAULT_NONE = 0,
+	SC_FAULT_VOLTAGE = (1 << 0),
+	SC_FAULT_TEMPERATURE = ( 1 << 2),
+};
+
 struct sc_info
 {
 	uint16_t model;
@@ -134,6 +141,7 @@ int sc_read_version(const int scd, const uint8_t id, uint8_t *major, uint8_t *mi
 int sc_read_vir_position(const int scd, const uint8_t id, uint16_t *vir_position);
 int sc_read_voltage(const int scd, const uint8_t id, uint8_t *voltage);
 const char * sc_strerror(const int error);
+const char * sc_strfault(const enum SC_FAULT fault);
 int sc_write_goal(const int scd, const uint8_t id, const uint16_t speed, const uint16_t position);
 int sc_write_goal_position(const int scd, const uint8_t id, const uint16_t position);
 int sc_write_goal_speed(const int scd, const uint8_t id, const uint16_t speed);
