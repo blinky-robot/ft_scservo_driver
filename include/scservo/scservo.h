@@ -113,8 +113,8 @@ struct sc_settings
 struct sc_status
 {
 	uint16_t present_position;
-	uint16_t present_speed;
-	uint16_t present_load;
+	int16_t present_speed;
+	int16_t present_load;
 } __attribute__((packed));
 
 struct sc_diag
@@ -136,12 +136,12 @@ int sc_ping(const int scd, const uint8_t id);
 int sc_read_diag(const int scd, const uint8_t id, struct sc_diag *diag);
 int sc_read_goal(const int scd, const uint8_t id, uint16_t *goal_speed, uint16_t *goal_position);
 int sc_read_goal_position(const int scd, const uint8_t id, uint16_t *goal_position);
-int sc_read_goal_speed(const int scd, const uint8_t id, uint16_t *goal_speed);
+int sc_read_goal_speed(const int scd, const uint8_t id, int16_t *goal_speed);
 int sc_read_info(const int scd, const uint8_t id, struct sc_info *info);
 int sc_read_model(const int scd, const uint8_t id, uint16_t *model);
 int sc_read_position(const int scd, const uint8_t id, uint16_t *position);
 int sc_read_settings(const int scd, const uint8_t id, struct sc_settings *settings);
-int sc_read_speed(const int scd, const uint8_t id, uint16_t *speed);
+int sc_read_speed(const int scd, const uint8_t id, int16_t *speed);
 int sc_read_status(const int scd, const uint8_t id, struct sc_status *status);
 int sc_read_status_and_diag(const int scd, const uint8_t id, struct sc_status *status, struct sc_diag *diag);
 int sc_read_temperature(const int scd, const uint8_t id, uint8_t *temperature);

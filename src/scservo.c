@@ -387,7 +387,7 @@ int sc_read_goal_position(const int scd, const uint8_t id, uint16_t *goal_positi
 	return sc_read_reg16(scd, id, SC10_GOAL_POSITION_L, goal_position);
 }
 
-int sc_read_goal_speed(const int scd, const uint8_t id, uint16_t *goal_speed)
+int sc_read_goal_speed(const int scd, const uint8_t id, int16_t *goal_speed)
 {
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
 	{
@@ -399,7 +399,7 @@ int sc_read_goal_speed(const int scd, const uint8_t id, uint16_t *goal_speed)
 		return SC_ERROR_INVALID_PARAM;
 	}
 
-	return sc_read_reg16(scd, id, SC10_GOAL_SPEED_L, goal_speed);
+	return sc_read_reg16(scd, id, SC10_GOAL_SPEED_L, (uint16_t *)goal_speed);
 }
 
 int sc_read_info(const int scd, const uint8_t id, struct sc_info *info)
@@ -473,7 +473,7 @@ int sc_read_settings(const int scd, const uint8_t id, struct sc_settings *settin
 	return ret;
 }
 
-int sc_read_speed(const int scd, const uint8_t id, uint16_t *speed)
+int sc_read_speed(const int scd, const uint8_t id, int16_t *speed)
 {
 	int ret;
 
@@ -487,7 +487,7 @@ int sc_read_speed(const int scd, const uint8_t id, uint16_t *speed)
 		return SC_ERROR_INVALID_PARAM;
 	}
 
-	ret = sc_read_reg16(scd, id, SC10_PRESENT_SPEED_L, speed);
+	ret = sc_read_reg16(scd, id, SC10_PRESENT_SPEED_L, (uint16_t *)speed);
 	if (ret == SC_SUCCESS && *speed & (1 << 10))
 	{
 		*speed = -(*speed & 1023);
@@ -516,6 +516,14 @@ int sc_read_status(const int scd, const uint8_t id, struct sc_status *status)
 		SC_ENDIAN_SWAP_16_ASSIGN(&status->present_position);
 		SC_ENDIAN_SWAP_16_ASSIGN(&status->present_speed);
 		SC_ENDIAN_SWAP_16_ASSIGN(&status->present_load);
+		if (status->present_speed & (1 << 10))
+		{
+			status->present_speed = -(status->present_speed & 1023);
+		}
+		if (status->present_load & (1 << 10))
+		{
+			status->present_load = -(status->present_load & 1023);
+		}
 	}
 
 	return ret;
@@ -545,6 +553,14 @@ int sc_read_status_and_diag(const int scd, const uint8_t id, struct sc_status *s
 		diag->voltage = buf[6];
 		diag->temperature = buf[7];
 		diag->error = buf[9];
+		if (status->present_speed & (1 << 10))
+		{
+			status->present_speed = -(status->present_speed & 1023);
+		}
+		if (status->present_load & (1 << 10))
+		{
+			status->present_load = -(status->present_load & 1023);
+		}
 	}
 
 	return ret;

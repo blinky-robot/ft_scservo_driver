@@ -410,7 +410,7 @@ namespace ft_scservo_driver
 			throw Exception((enum SC_ERROR)ret);
 		}
 
-		velocity = status.present_speed;
+		velocity = status.present_speed * rad_per_tick;
 		position = status.present_position * rad_per_tick - rad_offset;
 		effort = status.present_load;
 	}
