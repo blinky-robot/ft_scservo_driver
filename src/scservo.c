@@ -321,7 +321,7 @@ int sc_ping(const int scd, const uint8_t id)
 	return 1;
 }
 
-int sc_read_diag(const int scd, const uint8_t id, uint8_t *voltage, uint8_t *temperature, uint8_t *error)
+int sc_read_diag(const int scd, const uint8_t id, struct sc_diag *diag)
 {
 	int ret;
 	uint8_t buf[4];
@@ -331,7 +331,7 @@ int sc_read_diag(const int scd, const uint8_t id, uint8_t *voltage, uint8_t *tem
 		return SC_ERROR_INVALID_PARAM;
 	}
 
-	if (voltage == NULL || temperature == NULL)
+	if (diag == NULL)
 	{
 		return SC_ERROR_INVALID_PARAM;
 	}
@@ -339,9 +339,9 @@ int sc_read_diag(const int scd, const uint8_t id, uint8_t *voltage, uint8_t *tem
 	ret = sc_read_reg(scd, id, SC10_PRESENT_VOLTAGE, buf, 4);
 	if (ret == SC_SUCCESS)
 	{
-		*voltage = buf[0];
-		*temperature = buf[1];
-		*error = buf[3];
+		diag->voltage = buf[0];
+		diag->temperature = buf[1];
+		diag->error = buf[3];
 	}
 
 	return ret;

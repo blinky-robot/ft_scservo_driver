@@ -441,15 +441,13 @@ namespace ft_scservo_driver
 
 	void SCServoBus::Servo::queryDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
 	{
-		uint8_t error;
 		int ret;
-		uint8_t temperature;
+		struct sc_diag diag;
 		uint8_t torque_enable;
-		uint8_t voltage;
 
 		ROS_DEBUG_NAMED(this_name, "Getting diagnostics for servo at id '%hhu'", id);
 
-		ret = sc_read_diag(parent->scd, id, &voltage, &temperature, &error);
+		ret = sc_read_diag(parent->scd, id, &diag);
 		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
@@ -461,12 +459,12 @@ namespace ft_scservo_driver
 			throw Exception((enum SC_ERROR)ret);
 		}
 
-		stat.addf("Fault Code", "%s (%d)", sc_strfault((enum SC_FAULT)error), (int)error);
-		stat.add("Temperature", (int)temperature);
+		stat.addf("Fault Code", "%s (%d)", sc_strfault((enum SC_FAULT)diag.error), (int)diag.error);
+		stat.add("Temperature", (int)diag.temperature);
 		stat.add("Torque Enabled", (bool)torque_enable);
-		stat.add("Voltage", voltage / 10.0f);
+		stat.add("Voltage", diag.voltage / 10.0f);
 
-		if (error == 0)
+		if (diag.error == 0)
 		{
 			stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Servo Communication OK");
 		}

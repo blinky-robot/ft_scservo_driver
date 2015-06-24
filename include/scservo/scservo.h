@@ -117,6 +117,13 @@ struct sc_status
 	uint16_t present_load;
 } __attribute__((packed));
 
+struct sc_diag
+{
+	uint8_t voltage;
+	uint8_t temperature;
+	uint8_t error;
+} __attribute__((packed));
+
 #define SC_MAX_MSG sizeof(struct sc_settings)
 
 /**
@@ -125,7 +132,7 @@ struct sc_status
 void sc_close(const int scd);
 int sc_open(const char *port, const enum SC_BAUD baud, const uint8_t timeout);
 int sc_ping(const int scd, const uint8_t id);
-int sc_read_diag(const int scd, const uint8_t id, uint8_t *voltage, uint8_t *temperature, uint8_t *error);
+int sc_read_diag(const int scd, const uint8_t id, struct sc_diag *diag);
 int sc_read_goal(const int scd, const uint8_t id, uint16_t *goal_speed, uint16_t *goal_position);
 int sc_read_goal_position(const int scd, const uint8_t id, uint16_t *goal_position);
 int sc_read_goal_speed(const int scd, const uint8_t id, uint16_t *goal_speed);
