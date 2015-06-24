@@ -121,6 +121,7 @@ struct sc_diag
 {
 	uint8_t voltage;
 	uint8_t temperature;
+	uint8_t registered_instruction;
 	uint8_t error;
 } __attribute__((packed));
 
@@ -142,6 +143,7 @@ int sc_read_position(const int scd, const uint8_t id, uint16_t *position);
 int sc_read_settings(const int scd, const uint8_t id, struct sc_settings *settings);
 int sc_read_speed(const int scd, const uint8_t id, uint16_t *speed);
 int sc_read_status(const int scd, const uint8_t id, struct sc_status *status);
+int sc_read_status_and_diag(const int scd, const uint8_t id, struct sc_status *status, struct sc_diag *diag);
 int sc_read_temperature(const int scd, const uint8_t id, uint8_t *temperature);
 int sc_read_torque_enable(const int scd, const uint8_t id, uint8_t *enable);
 int sc_read_version(const int scd, const uint8_t id, uint8_t *major, uint8_t *minor);

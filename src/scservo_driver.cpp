@@ -443,11 +443,12 @@ namespace ft_scservo_driver
 	{
 		int ret;
 		struct sc_diag diag;
+		struct sc_status status;
 		uint8_t torque_enable;
 
 		ROS_DEBUG_NAMED(this_name, "Getting diagnostics for servo at id '%hhu'", id);
 
-		ret = sc_read_diag(parent->scd, id, &diag);
+		ret = sc_read_status_and_diag(parent->scd, id, &status, &diag);
 		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);
@@ -460,6 +461,9 @@ namespace ft_scservo_driver
 		}
 
 		stat.addf("Fault Code", "%s (%d)", sc_strfault((enum SC_FAULT)diag.error), (int)diag.error);
+		stat.add("Load", status.present_load);
+		stat.add("Position", status.present_position);
+		stat.add("Speed", status.present_speed);
 		stat.add("Temperature", (int)diag.temperature);
 		stat.add("Torque Enabled", (bool)torque_enable);
 		stat.add("Voltage", diag.voltage / 10.0f);

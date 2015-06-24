@@ -521,6 +521,35 @@ int sc_read_status(const int scd, const uint8_t id, struct sc_status *status)
 	return ret;
 }
 
+int sc_read_status_and_diag(const int scd, const uint8_t id, struct sc_status *status, struct sc_diag *diag)
+{
+	int ret;
+	uint8_t buf[sizeof(struct sc_status) + sizeof(struct sc_diag)];
+
+	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
+	{
+		return SC_ERROR_INVALID_PARAM;
+	}
+
+	if (status == NULL || diag == NULL)
+	{
+		return SC_ERROR_INVALID_PARAM;
+	}
+
+	ret = sc_read_reg(scd, id, SC10_PRESENT_POSITION_L, buf, sizeof(struct sc_status) + sizeof(struct sc_diag));
+	if (ret == SC_SUCCESS)
+	{
+		status->present_position = SC_ENDIAN_SWAP_16(&buf[0]);
+		status->present_speed = SC_ENDIAN_SWAP_16(&buf[2]);
+		status->present_load = SC_ENDIAN_SWAP_16(&buf[4]);
+		diag->voltage = buf[6];
+		diag->temperature = buf[7];
+		diag->error = buf[9];
+	}
+
+	return ret;
+}
+
 int sc_read_temperature(const int scd, const uint8_t id, uint8_t *temperature)
 {
 	if (scd < 0 || scd > SC_MAX_DESCRIPTORS || scds[scd] == NULL || id > SC_MAX_ID)
