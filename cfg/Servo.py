@@ -4,14 +4,14 @@ from dynamic_reconfigure.parameter_generator_catkin import *
 gen = ParameterGenerator()
 
 # Servo params
-gen.add("min_angle_limit",	int_t,		0,	"Minimum Angle Limit (ticks)",	0,	0,	1023);
-gen.add("max_angle_limit",	int_t,		0,	"Maximum Angle Limit (ticks)",	1023,	0,	1023);
-gen.add("limit_temperature",	int_t,		0,	"Temperature Limit",		0,	0,	255);
-gen.add("max_limit_voltage",	double_t,	0,	"Maximum Voltage Limit",	0,	0.0,	25.5);
-gen.add("min_limit_voltage",	double_t,	0,	"Minimum Voltage Limit",	0.0,	0.0,	25.5);
-gen.add("max_torque",		int_t,		0,	"Maximum Torque",		0,	0,	1023);
-gen.add("compliance_p",		int_t,		0,	"Proportional Gain",		0,	0,	255);
-gen.add("compliance_d",		int_t,		0,	"Derivative Gain",		0,	0,	255);
+gen.add("min_angle_limit",	int_t,		0,	"Minimum Angle Limit (ticks)",	100,	0,	1023);
+gen.add("max_angle_limit",	int_t,		0,	"Maximum Angle Limit (ticks)",	900,	0,	1023);
+gen.add("limit_temperature",	int_t,		0,	"Temperature Limit",		80,	0,	255);
+gen.add("max_limit_voltage",	double_t,	0,	"Maximum Voltage Limit",	25.0,	0.0,	25.5);
+gen.add("min_limit_voltage",	double_t,	0,	"Minimum Voltage Limit",	5.0,	0.0,	25.5);
+gen.add("max_torque",		int_t,		0,	"Maximum Torque",		1023,	0,	1023);
+gen.add("compliance_p",		int_t,		0,	"Proportional Gain",		30,	0,	255);
+gen.add("compliance_d",		int_t,		0,	"Derivative Gain",		30,	0,	255);
 gen.add("compliance_i",		int_t,		0,	"Integral Gain",		0,	0,	255);
 gen.add("imax",			int_t,		0,	"Maximum Integral Value",	0,	0,	255);
 
