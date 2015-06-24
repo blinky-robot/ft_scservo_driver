@@ -331,8 +331,8 @@ namespace ft_scservo_driver
 		last_settings.min_angle_limit = config.min_angle_limit;
 		last_settings.max_angle_limit = config.max_angle_limit;
 		last_settings.limit_temperature = config.limit_temperature;
-		last_settings.max_limit_voltage = config.max_limit_voltage;
-		last_settings.min_limit_voltage = config.min_limit_voltage;
+		last_settings.max_limit_voltage = (uint8_t)(config.max_limit_voltage * 10 + 0.5);
+		last_settings.min_limit_voltage = (uint8_t)(config.min_limit_voltage * 10 + 0.5);
 		last_settings.max_torque = config.max_torque;
 		last_settings.compliance_p = config.compliance_p;
 		last_settings.compliance_d = config.compliance_d;
@@ -347,6 +347,10 @@ namespace ft_scservo_driver
 		{
 			ROS_ERROR_NAMED(this_name, "Failed to update servo settings: %s", sc_strerror(ret));
 		}
+
+		// Propagate back to DynRe so the precision matches
+		config.max_limit_voltage = last_settings.max_limit_voltage / 10.0;
+		config.min_limit_voltage = last_settings.min_limit_voltage / 10.0;
 	}
 
 	ft_scservo_driver::ServoConfig SCServoBus::Servo::getConfig()
@@ -363,8 +367,8 @@ namespace ft_scservo_driver
 		cfg.min_angle_limit = last_settings.min_angle_limit;
 		cfg.max_angle_limit = last_settings.max_angle_limit;
 		cfg.limit_temperature = last_settings.limit_temperature;
-		cfg.max_limit_voltage = last_settings.max_limit_voltage;
-		cfg.min_limit_voltage = last_settings.min_limit_voltage;
+		cfg.max_limit_voltage = last_settings.max_limit_voltage / 10.0;
+		cfg.min_limit_voltage = last_settings.min_limit_voltage / 10.0;
 		cfg.max_torque = last_settings.max_torque;
 		cfg.compliance_p = last_settings.compliance_p;
 		cfg.compliance_d = last_settings.compliance_d;
