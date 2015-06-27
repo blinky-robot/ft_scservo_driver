@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ft_scservo_driver/scservo_driver.hpp"
+#include "ft_scservo_driver/ft_scservo_driver.hpp"
 
 namespace ft_scservo_driver
 {
@@ -160,6 +160,28 @@ namespace ft_scservo_driver
 		}
 
 		servos[id]->setPosition(position);
+	}
+
+	void SCServoBus::setVelocity(int id, double velocity)
+	{
+		boost::recursive_mutex::scoped_lock lock(io_mutex);
+
+		if (!SCServoBus::stat())
+		{
+			SCServoBus::start();
+
+			if (!SCServoBus::stat())
+			{
+				throw Exception(SC_ERROR_NOT_CONNECTED);
+			}
+		}
+
+		if (servos.find(id) == servos.end())
+		{
+			throw Exception(SC_ERROR_INVALID_PARAM);
+		}
+
+		servos[id]->setVelocity(velocity);
 	}
 
 	bool SCServoBus::stat()
@@ -540,6 +562,27 @@ namespace ft_scservo_driver
 		pos = (position + 0.5);
 
 		ret = sc_write_goal(parent->scd, id, 25, pos);
+		if (ret < SC_SUCCESS)
+		{
+			throw Exception((enum SC_ERROR)ret);
+		}
+	}
+
+	void SCServoBus::Servo::setVelocity(double velocity)
+	{
+		uint16_t vel;
+		int ret;
+
+		velocity = velocity / rad_per_tick;
+
+		if (velocity < -1024 || velocity > 1023)
+		{
+			throw Exception(SC_ERROR_INVALID_PARAM);
+		}
+
+		vel = (velocity + 0.5);
+
+		ret = sc_write_goal_speed(parent->scd, id, vel);
 		if (ret < SC_SUCCESS)
 		{
 			throw Exception((enum SC_ERROR)ret);

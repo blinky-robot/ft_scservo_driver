@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ft_scservo_driver/scservo_driver.hpp>
+#include <ft_scservo_driver/ft_scservo_driver.hpp>
 
 #include <ros/ros.h>
 

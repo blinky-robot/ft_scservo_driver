@@ -62,6 +62,7 @@ namespace ft_scservo_driver
 			bool ping();
 			void setEnableTorque(bool enable);
 			void setPosition(double position);
+			void setVelocity(double velocity);
 
 			const uint8_t id;
 
@@ -98,6 +99,7 @@ namespace ft_scservo_driver
 		void open();
 		void setEnableTorque(int id, bool enable);
 		void setPosition(int id, double position);
+		void setVelocity(int id, double velocity);
 		void start();
 		bool stat();
 		void stop();
