@@ -23,6 +23,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _scservo_driver_hpp
+#define _scservo_driver_hpp
+
 #include <boost/thread/mutex.hpp>
 
 #include <scservo/scservo.h>
@@ -121,3 +124,4 @@ namespace ft_scservo_driver
 	};
 }
 
+#endif /* _scservo_driver_hpp */
